@@ -11,8 +11,23 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import streamlit as st
 
-from astock_data import IS_CI, TUSHARE_TOKEN, get_minute_data, resolve_stock_input
-from tail_pick import analyze_stock, format_result
+
+def _inject_streamlit_secrets() -> None:
+    """Streamlit Cloud Secrets → 环境变量（与 GitHub Actions Secrets 无关）。"""
+    if os.getenv("TUSHARE_TOKEN"):
+        return
+    try:
+        token = st.secrets.get("TUSHARE_TOKEN")
+        if token:
+            os.environ["TUSHARE_TOKEN"] = str(token).strip()
+    except Exception:
+        pass
+
+
+_inject_streamlit_secrets()
+
+from astock_data import IS_CI, has_tushare_token, get_minute_data, resolve_stock_input
+from tail_pick import analyze_stock
 
 st.set_page_config(
     page_title="尾盘选股分析",
@@ -26,7 +41,15 @@ st.caption("基于尾盘分时形态 + 三步筛选，评估次日走势倾向�
 with st.sidebar:
     st.markdown("### 数据环境")
     st.write(f"- CI 模式: {'是' if IS_CI else '否'}")
-    st.write(f"- Tushare: {'已配置' if TUSHARE_TOKEN else '未配置（日K/名称解析受限）'}")
+    if has_tushare_token():
+        st.write("- Tushare: ✅ 已配置")
+    else:
+        st.write("- Tushare: ❌ 未配置")
+        st.caption(
+            "请在 [Streamlit Cloud](https://share.streamlit.io) → 本 App → "
+            "**Settings → Secrets** 添加 `TUSHARE_TOKEN`。"
+            "GitHub Actions 里的 Secret **不会**同步到这里。"
+        )
     st.info("14:30 后运行效果最佳。结论仅供参考，不构成投资建议。")
 
 col1, col2 = st.columns([3, 1])

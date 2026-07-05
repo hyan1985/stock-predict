@@ -46,13 +46,30 @@ streamlit run app.py
 
 环境变量：`TUSHARE_TOKEN`（[Tushare Pro](https://tushare.pro)）。CI 环境设 `CI=true` 时跳过 mootdx。
 
+### Secrets 配置（两处独立，互不同步）
+
+| 运行环境 | 在哪里配 Token |
+|----------|----------------|
+| **Streamlit 在线页** | [share.streamlit.io](https://share.streamlit.io) → 你的 App → **Settings → Secrets** |
+| **GitHub Actions** | GitHub 仓库 → **Settings → Secrets and variables → Actions** |
+| **本地** | `export TUSHARE_TOKEN=...` 或 `.streamlit/secrets.toml` |
+
+Streamlit Secrets 格式（TOML）：
+
+```toml
+TUSHARE_TOKEN = "你的token"
+```
+
+保存后 App 会自动重启。GitHub Actions 里配的 **不会** 传给 Streamlit。
+
 ## 部署说明
 
 ### Streamlit Cloud（已部署）
 
+- 在线页：<https://stock-predict-we9pcfhnkrywlst7pziusn.streamlit.app/>
 - 仓库：[hyan1985/stock-predict](https://github.com/hyan1985/stock-predict)
 - 入口文件：`app.py`
-- Secrets：`TUSHARE_TOKEN`
+- **Secrets（Streamlit 控制台，不是 GitHub）**：`TUSHARE_TOKEN`
 
 ### GitHub Actions
 

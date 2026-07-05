@@ -32,10 +32,18 @@ import pandas as pd
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
 IS_CI = os.getenv("CI", "").lower() in ("1", "true", "yes")
-TUSHARE_TOKEN = os.getenv("TUSHARE_TOKEN", "")
 
 _tushare_pro = None
 _tdx_client = None
+
+
+def get_tushare_token() -> str:
+    """从环境变量读取 Tushare Token（Streamlit 需在 app 启动时注入 st.secrets）。"""
+    return os.getenv("TUSHARE_TOKEN", "").strip()
+
+
+def has_tushare_token() -> bool:
+    return bool(get_tushare_token())
 
 
 def is_ci() -> bool:
@@ -44,12 +52,13 @@ def is_ci() -> bool:
 
 def _tushare_api():
     global _tushare_pro
-    if not TUSHARE_TOKEN:
+    token = get_tushare_token()
+    if not token:
         return None
     if _tushare_pro is None:
         try:
             import tushare as ts
-            _tushare_pro = ts.pro_api(TUSHARE_TOKEN)
+            _tushare_pro = ts.pro_api(token)
         except Exception as e:
             print(f"[WARN] Tushare 初始化失败: {e}")
             return None
@@ -446,7 +455,7 @@ def query(code: str, data_type: str = "quote") -> Any:
         return {
             "quote": q, "minute": minute, "minute_source": msrc,
             "historical": hist, "historical_source": hsrc,
-            "ci": IS_CI, "tushare": bool(TUSHARE_TOKEN),
+            "ci": IS_CI, "tushare": has_tushare_token(),
         }
     raise ValueError(f"Unknown data_type: {data_type}")
 
@@ -458,6 +467,6 @@ if __name__ == "__main__":
     d, src = get_minute_data(code)
     daily = get_daily(code, 30)
     print(f"=== {q.get('name', code)}({code}) ===")
-    print(f"  CI={IS_CI}  Tushare={'yes' if TUSHARE_TOKEN else 'no'}  source={q.get('_source')}")
+    print(f"  CI={IS_CI}  Tushare={'yes' if has_tushare_token() else 'no'}  source={q.get('_source')}")
     print(f"  现价: {q.get('price')}  涨幅: {q.get('change_pct')}%")
     print(f"  分钟: {len(d)} 条 ({src})  日K: {len(daily)} 条")
