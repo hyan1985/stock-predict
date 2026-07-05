@@ -4,6 +4,10 @@ app.py — Stock Predict 尾盘选股 Streamlit 网页
 在线: https://stock-predict-we9pcfhnkrywlst7pziusn.streamlit.app/
 """
 
+import os
+import sys
+import time
+from datetime import datetime
 from typing import List, Optional
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
