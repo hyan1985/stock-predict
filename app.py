@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-app.py — 尾盘选股 Streamlit 网页
-部署: Streamlit Community Cloud 连接 GitHub 仓库，Secrets 配置 TUSHARE_TOKEN
+app.py — Stock Predict 尾盘选股 Streamlit 网页
+在线: https://stock-predict-we9pcfhnkrywlst7pziusn.streamlit.app/
 """
 
 import os
@@ -95,4 +95,7 @@ if run:
     st.caption(f"分析耗时 {s.get('elapsed_seconds', 0)}s · {result.get('timestamp', '')}")
 
 st.markdown("---")
-st.caption("GitHub + Streamlit 部署 · 本地 mootdx 补充 · 线上 Tushare + 腾讯")
+st.caption(
+    "[GitHub](https://github.com/hyan1985/stock-predict) · "
+    "Tushare + 腾讯 · 规则分析，非投资建议"
+)
