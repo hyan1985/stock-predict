@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+tail_pick_result.json
+tail_pick_backtest_result.json
+.streamlit/secrets.toml

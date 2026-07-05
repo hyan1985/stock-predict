@@ -1,0 +1,41 @@
+name: Tail Pick Daily
+
+on:
+  schedule:
+    # 北京时间 14:35，周一至周五 (UTC 06:35)
+    - cron: "35 6 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      codes:
+        description: "股票代码，空格分隔"
+        required: false
+        default: "600519 000858"
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    env:
+      CI: "true"
+      TUSHARE_TOKEN: ${{ secrets.TUSHARE_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tail pick analysis
+        run: |
+          CODES="${{ github.event.inputs.codes || '600519 000858' }}"
+          python tail_pick.py $CODES
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: tail-pick-result
+          path: tail_pick_result.json
+          if-no-files-found: warn
